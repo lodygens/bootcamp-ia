@@ -1,1 +1,27 @@
-#week1
+# week1
+
+## installation 
+- Virtual env
+```
+python3 -m venv .  
+source bin/acticate
+```
+
+- Librairies
+```
+pip3 install torch torchvision tensorflow flax transformers pytorch-transformers openai
+````
+### Test installation
+```
+python -c "from transformers import pipeline; print(pipeline('sentiment-analysis')('we love you'))"
+```
+
+## configuration
+
+Save openai api key to openaikey
+
+```
+cat openaikey >> .gitignore
+export OPENAI_API_KEY=`cat openaikey`
+```
+
