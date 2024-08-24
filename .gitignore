@@ -1,1 +1,7 @@
 openaikey
+.vscode
+bin
+lib
+pyvenv.cfg
+share
+
