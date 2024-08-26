@@ -31,4 +31,9 @@ Located in __src__ directory
 
 ## Weekend project
 
-Located in __project__ directory
+We have three versions
+- ./project/openai-ferran-gpt.py by @Dani    (zAspwz)
+- ./project/openai-french-chef.py by @oleglod#0001    (nVKpoe)
+- ./Montenegrin-AI/Chef by @Perper.net Ivan    (jQ5gT7)
+
+
