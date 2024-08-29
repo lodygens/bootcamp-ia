@@ -4,4 +4,4 @@ bin
 lib
 pyvenv.cfg
 share
-
+.env
