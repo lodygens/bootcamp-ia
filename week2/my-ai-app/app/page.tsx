@@ -7,6 +7,9 @@ export default function Chat() {
   const { messages, isLoading, append } = useChat();
   const [imageIsLoading, setImageIsLoading] = useState(false);
   const [image, setImage] = useState<string | null>(null);
+  const [audioIsLoading, setAudioIsLoading] = useState(false);
+  const [audio, setAudio] = useState<string | null>(null);
+
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (messagesContainerRef.current) {
@@ -28,16 +31,49 @@ export default function Chat() {
   if (image) {
     return (
       <div className="flex flex-col p-4 justify-center gap-4 h-screen">
-        <img width={300} style={{ alignSelf: 'center'}}  src={`data:image/jpeg;base64,${image}`} />
+        <img src={`data:image/jpeg;base64,${image}`} />
         <textarea
           className="mt-4 w-full text-white bg-black h-64"
           value={messages[messages.length - 1].content}
           readOnly
         />
+  
+        <div className="flex flex-col justify-center mb-2">
+          {audio && (
+            <>
+              <p> Listen to the recipe: </p>
+              <audio controls src={audio} className="w-full"></audio>
+            </>
+          )}
+          {audioIsLoading && !audio && <p> Audio is being generated... </p>}
+          {!audioIsLoading && !audio && (
+            <button
+              className="bg-blue-500 p-2 text-white rounded shadow-xl"
+              onClick={async () => {
+                setAudioIsLoading(true);
+                const response = await fetch("/api/audio", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    message: messages[messages.length - 1].content,
+                  }),
+                });
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                setAudio(audioUrl);
+                setAudioIsLoading(false);
+              }}
+            >
+              Generate Audio
+            </button>
+          )}
+        </div>
       </div>
     );
-  }
-  return (
+  } 
+    return (
     <div className="flex flex-col w-full h-screen max-w-md py-24 mx-auto stretch overflow-hidden">
       <div
         className="overflow-auto w-full mb-8"
