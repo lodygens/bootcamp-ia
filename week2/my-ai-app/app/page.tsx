@@ -2,6 +2,7 @@
 
 import { useChat } from "ai/react";
 import { useEffect, useRef, useState } from "react";
+import { Component } from "@/components/component";
 
 export default function Chat() {
   const { messages, isLoading, append } = useChat();
@@ -74,6 +75,8 @@ export default function Chat() {
     );
   } 
     return (
+      <Component />
+/*
     <div className="flex flex-col w-full h-screen max-w-md py-24 mx-auto stretch overflow-hidden">
       <div
         className="overflow-auto w-full mb-8"
@@ -140,5 +143,7 @@ export default function Chat() {
         </div>
       </div>
     </div>
+*/
   );
+
 }
