@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     messages: [
       {
         role: 'system',
-        content: 'You are a professional chef. You provide detailed cooking instructions, tips, and advice on selecting the best ingredients.',
+        content: "You are a professional comedian AI assistant. Your primary function is to generate jokes based on the user's request. Always provide jokes in a JSON format with 'setup' and 'punchline' keys."
       },
       ...messages,
     ],
