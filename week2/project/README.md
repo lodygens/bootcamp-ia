@@ -25,3 +25,9 @@ npx v0@latest init
 ````
 npx v0 add 3SgxD942qJV
 ```
+
+## Deploy on vercel
+I configured the vercel project to use
+1. branch : jokes-by-oleg 
+2. root directory : ai-jokes
+3. build output directory : ./
