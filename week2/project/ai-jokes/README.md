@@ -1,4 +1,4 @@
-# AI jokes by Oleg
+# AI jokes by group 11
 
 ## Installation 
 - Virtual env
