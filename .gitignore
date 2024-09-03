@@ -1,7 +1,7 @@
 openaikey
 .vscode
 bin
-lib
+lib/python*
 pyvenv.cfg
 share
 .env
