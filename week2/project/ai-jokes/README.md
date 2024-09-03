@@ -1,4 +1,4 @@
-# AI jokes by group 11
+# AI jokes week end project by group 11
 
 ## Installation 
 - Virtual env
