@@ -22,7 +22,7 @@ npx v0@latest init
 ```
 
 ## VO component
-````
+```
 npx v0 add 3SgxD942qJV
 ```
 
@@ -31,3 +31,9 @@ I configured the vercel project to use
 1. branch : jokes-by-oleg 
 2. root directory : ai-jokes
 3. build output directory : ./
+
+## Vercle VK
+```
+vercel link
+vercel env pull .env.development.local
+```

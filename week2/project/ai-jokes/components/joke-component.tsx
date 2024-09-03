@@ -26,6 +26,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
+import { kv } from '@/lib/kv';
 
 interface ShareIconProps extends React.SVGProps<SVGSVGElement> {}
 
@@ -67,79 +68,14 @@ export function JokeComponent() {
         }
       }
     }, [messages, isLoading]);
-    const generateNewJoke2 = async () => {
-    console.log('generateNewJoke2 : Sending request for', activeTabRef.current, 'joke');
+    const generateNewJoke = async () => {
+    console.log('generateNewJoke : Sending request for', activeTabRef.current, 'joke');
     append({
       role: "user", 
       content: 'Generate a ' + activeTabRef.current + ' joke. ',
     })
   }
 
-  const generateNewJoke = async () => {
-    try {
-      console.log('Sending request for', activeTabRef.current, 'joke');
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [
-            { 
-              role: "system", 
-              content: "You are a comedian AI assistant." 
-            },
-            { 
-              role: "user", 
-              content: `Generate a ${activeTabRef.current} joke. Remember to respond only with a JSON object containing 'setup' and 'punchline' keys.`
-            }
-          ]
-        }),
-      });
-
-      console.log('Response status:', response.status);
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const data = await response.json();
-      console.log('Raw API response:', data);
-      let jokeContent;
-      if (data.choices && data.choices[0] && data.choices[0].message) {
-        const aiResponse = data.choices[0].message.content;
-        console.log('AI response content:', aiResponse);
-  
-        try {
-          jokeContent = JSON.parse(aiResponse);
-        } catch (parseError) {
-          console.error('Failed to parse AI response as JSON:', parseError);
-          // Tentative de nettoyage et de parsing manuel
-          const cleanedResponse = aiResponse.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
-          try {
-            jokeContent = JSON.parse(cleanedResponse);
-          } catch (secondParseError) {
-            console.error('Failed to parse cleaned AI response:', secondParseError);
-            jokeContent = { setup: "Parsing Error", punchline: aiResponse };
-          }
-        }
-      } else {
-        jokeContent = { setup: "Error", punchline: "Unexpected API response format" };
-      }
-  
-      console.log('Final joke content:', jokeContent);
-      setJokes(prevJokes => ({
-        ...prevJokes,
-        [activeTabRef.current]: [...prevJokes[activeTabRef.current], jokeContent]
-      }));
-      } catch (error) {
-        console.error('Failed to generate joke:', error);
-        setJokes(prevJokes => ({
-          ...prevJokes,
-          [activeTabRef.current]: [...prevJokes[activeTabRef.current], { setup: "Error", punchline: "Failed to generate joke. Please try again." }]
-        }));
-      }
-    }
   return (
     <div className="bg-background text-foreground min-h-screen flex flex-col items-center justify-center px-4 py-8">
       <div className="max-w-2xl w-full">
@@ -149,7 +85,7 @@ export function JokeComponent() {
         </div>
         <div className="grid gap-4">
           <div className="flex justify-between items-center">
-            <Button onClick={generateNewJoke2}>Generate New Joke</Button>
+            <Button onClick={generateNewJoke}>Generate New Joke</Button>
           </div>
           <Tabs defaultValue={jokeType} 
                 className="w-full"
@@ -213,3 +149,4 @@ function ShareIcon(props: ShareIconProps) {
     </svg>
   )
 }
+
