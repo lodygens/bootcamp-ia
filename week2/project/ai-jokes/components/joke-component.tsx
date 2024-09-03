@@ -19,7 +19,8 @@ To read more about using these font, please visit the Next.js documentation:
 **/
 "use client"
 
-import { useState, useRef } from "react"
+import { useChat } from 'ai/react';
+import { useEffect, useState, useRef } from "react"
 import { Label } from "@/components/ui/label"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -28,10 +29,51 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 
 interface ShareIconProps extends React.SVGProps<SVGSVGElement> {}
 
+type JokeType = 'witty' | 'sarcastic' | 'silly' | 'dark' | 'goofy';
+
 export function JokeComponent() {
-  const [jokeType, setJokeType] = useState("witty")
-  const [joke, setJoke] = useState({ setup: "", punchline: "" })
-  const activeTabRef = useRef(jokeType)
+  const { messages, isLoading, append } = useChat();
+  const [jokeType, setJokeType] = useState<JokeType>("witty")
+  const [jokes, setJokes] = useState<Record<JokeType, Array<{ setup: string; punchline: string }>>>({
+    witty: [],
+    sarcastic: [],
+    silly: [],
+    dark: [],
+    goofy: []
+  });
+
+    const activeTabRef = useRef<JokeType>("witty")
+
+    useEffect(() => {
+      if (messages.length > 0 && !isLoading) {
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage.role === 'assistant') {
+          console.log('Last message:', lastMessage.content);
+          if (lastMessage.content) {
+            try {
+              const cleanedContent = lastMessage.content.replace(/```json|```/g, '').trim();
+              console.log('cleanedContent:', cleanedContent);
+              const jokeContent = JSON.parse(cleanedContent);
+              setJokes(prevJokes => ({
+                ...prevJokes,
+                [activeTabRef.current]: [...prevJokes[activeTabRef.current], jokeContent]
+              }));
+            } catch (error) {
+              console.error('Failed to parse joke:', error);
+            }
+          } else {
+            console.warn('Received empty message content');
+          }
+        }
+      }
+    }, [messages, isLoading]);
+    const generateNewJoke2 = async () => {
+    console.log('generateNewJoke2 : Sending request for', activeTabRef.current, 'joke');
+    append({
+      role: "user", 
+      content: 'Generate a ' + activeTabRef.current + ' joke. ',
+    })
+  }
 
   const generateNewJoke = async () => {
     try {
@@ -86,13 +128,18 @@ export function JokeComponent() {
       }
   
       console.log('Final joke content:', jokeContent);
-      setJoke(jokeContent);
-    } catch (error) {
-      console.error('Failed to generate joke:', error);
-      setJoke({ setup: "Error", punchline: "Failed to generate joke. Please try again." });
+      setJokes(prevJokes => ({
+        ...prevJokes,
+        [activeTabRef.current]: [...prevJokes[activeTabRef.current], jokeContent]
+      }));
+      } catch (error) {
+        console.error('Failed to generate joke:', error);
+        setJokes(prevJokes => ({
+          ...prevJokes,
+          [activeTabRef.current]: [...prevJokes[activeTabRef.current], { setup: "Error", punchline: "Failed to generate joke. Please try again." }]
+        }));
+      }
     }
-    };
-
   return (
     <div className="bg-background text-foreground min-h-screen flex flex-col items-center justify-center px-4 py-8">
       <div className="max-w-2xl w-full">
@@ -102,13 +149,13 @@ export function JokeComponent() {
         </div>
         <div className="grid gap-4">
           <div className="flex justify-between items-center">
-            <Button onClick={generateNewJoke}>Generate New Joke</Button>
+            <Button onClick={generateNewJoke2}>Generate New Joke</Button>
           </div>
           <Tabs defaultValue={jokeType} 
                 className="w-full"
                 onValueChange={(value) => {
-                  setJokeType(value);
-                  activeTabRef.current = value;
+                  setJokeType(value as JokeType);
+                  activeTabRef.current = value as JokeType;
                 }}
           >
             <TabsList className="grid grid-cols-5 w-full">
@@ -118,66 +165,26 @@ export function JokeComponent() {
               <TabsTrigger value="dark">Dark</TabsTrigger>
               <TabsTrigger value="goofy">Goofy</TabsTrigger>
             </TabsList>
-            <TabsContent value="witty">
+            <TabsContent value={jokeType}>
               <div className="grid gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Why don't scientists trust atoms?</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>Because they make up everything!</p>
-                  </CardContent>
-                  <CardFooter className="flex justify-end">
-                    <Button variant="ghost" size="icon" onClick={() => {}}>
-                      <ShareIcon className="h-4 w-4" />
-                      <span className="sr-only">Share</span>
-                    </Button>
-                  </CardFooter>
-                </Card>
+                {jokes[jokeType].map((joke, index) => (
+                  <Card key={index}>
+                    <CardHeader>
+                      <CardTitle>{joke.setup}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p>{joke.punchline}</p>
+                    </CardContent>
+                    <CardFooter className="flex justify-end">
+                      <Button variant="ghost" size="icon" onClick={() => {}}>
+                        <ShareIcon className="h-4 w-4" />
+                        <span className="sr-only">Share</span>
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
               </div>
-            </TabsContent>
-            <TabsContent value="sarcastic">
-              <div className="grid gap-4" />
-            </TabsContent>
-            <TabsContent value="silly">
-              <div className="grid gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Why can't a bicycle stand up by itself?</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>It's two-tired!</p>
-                  </CardContent>
-                  <CardFooter className="flex justify-end">
-                    <Button variant="ghost" size="icon" onClick={() => {}}>
-                      <ShareIcon className="h-4 w-4" />
-                      <span className="sr-only">Share</span>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
-            </TabsContent>
-            <TabsContent value="dark">
-              <div className="grid gap-4" />
-            </TabsContent>
-            <TabsContent value="goofy">
-              <div className="grid gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Why did the tomato turn red?</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>Because it saw the salad dressing!</p>
-                  </CardContent>
-                  <CardFooter className="flex justify-end">
-                    <Button variant="ghost" size="icon" onClick={() => {}}>
-                      <ShareIcon className="h-4 w-4" />
-                      <span className="sr-only">Share</span>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
-            </TabsContent>
+          </TabsContent>
           </Tabs>
         </div>
       </div>
@@ -185,9 +192,6 @@ export function JokeComponent() {
   )
 }
 
-function generateJoke() {
-
-}
 
 function ShareIcon(props: ShareIconProps) {
   return (
